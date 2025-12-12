@@ -51,8 +51,8 @@ if checkHelpFlag() {
 let customSound = parseSoundArg()
 
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
-    private var title = "Claude Code"
-    private var message = "Awaiting your input"
+    private var title = "Claude Notifier"
+    private var message = "Hello!"
     private var soundName = customSound ?? "Glass"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -141,7 +141,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
     func userNotificationCenter(
         _ center: UNUserNotificationCenter, willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) ->
+        withCompletionHandler completionHandler:
+            @escaping (UNNotificationPresentationOptions) ->
             Void
     ) {
         completionHandler([.banner, .sound, .list])

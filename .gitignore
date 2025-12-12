@@ -4,3 +4,4 @@ ClaudeNotifier.app/
 *.xcodeproj/
 DerivedData/
 .swiftpm/
+.claude/

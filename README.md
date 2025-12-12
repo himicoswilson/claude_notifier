@@ -1,6 +1,6 @@
 # ClaudeNotifier
 
-A macOS notification agent for Claude Code hooks. Reads JSON from stdin and displays system notifications.
+A macOS notification agent for Claude Code hooks. Reads JSON from stdin, displays system notifications, and activates Terminal.app when clicked.
 
 ## Build
 
@@ -36,10 +36,18 @@ ClaudeNotifier reads JSON from stdin and extracts:
 
 - `message` → notification body
 - `notification_type` → notification title (formatted: `permission_prompt` → "Permission Prompt")
+- `session_id` → Claude Code session identifier (optional, stored for future use)
+- `cwd` → current working directory (optional, stored for future use)
+- `transcript_path` → path to session transcript (optional, stored for future use)
 
 ```bash
 echo '{"message":"Claude needs your permission to use Bash","notification_type":"permission_prompt"}' | claude-notify
 ```
+
+### Behavior
+
+- **Click notification** → Activates Terminal.app and brings it to the foreground
+- **Ignore notification** → Process auto-exits after 1 minute
 
 ### Custom Sound
 

@@ -2,13 +2,13 @@ import AppKit
 import UserNotifications
 
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
-    private var title = "Notification"
-    private var message = "Task completed"
-    private var soundName = "Glass"
+    private var title = "Claude Code"
+    private var message = "Awaiting your input"
+    private let soundName = "Glass"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.activate(ignoringOtherApps: true)
-        parseArguments()
+        parseStdinJSON()
 
         let center = UNUserNotificationCenter.current()
         center.delegate = self
@@ -32,24 +32,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
-    private func parseArguments() {
-        let args = CommandLine.arguments
-        var i = 1
-        while i < args.count {
-            let arg = args[i]
-            if (arg == "--sound" || arg == "-s") && i + 1 < args.count {
-                soundName = args[i + 1]
-                i += 2
-                continue
-            } else if !arg.hasPrefix("-") {
-                if title == "Notification" {
-                    title = arg
-                } else if message == "Task completed" {
-                    message = arg
-                }
-            }
-            i += 1
+    private func parseStdinJSON() {
+        guard isatty(STDIN_FILENO) == 0 else { return }
+
+        let data = FileHandle.standardInput.readDataToEndOfFile()
+        guard !data.isEmpty else { return }
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return
         }
+
+        if let msg = json["message"] as? String {
+            message = msg
+        }
+        if let type = json["notification_type"] as? String {
+            title = formatNotificationType(type)
+        }
+    }
+
+    private func formatNotificationType(_ type: String) -> String {
+        type.split(separator: "_").map { $0.capitalized }.joined(separator: " ")
     }
 
     private func requestPermission() {
@@ -85,11 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     private func playSound() {
-        if let sound = NSSound(named: NSSound.Name(soundName)) {
-            sound.play()
-        } else {
-            NSSound(named: "Glass")?.play()
-        }
+        NSSound(named: NSSound.Name(soundName))?.play()
     }
 
     func userNotificationCenter(

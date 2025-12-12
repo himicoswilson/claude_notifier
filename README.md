@@ -1,6 +1,6 @@
 # ClaudeNotifier
 
-A macOS notification agent for sending system notifications with sound and icon from the command line.
+A macOS notification agent for Claude Code hooks. Reads JSON from stdin and displays system notifications.
 
 ## Build
 
@@ -21,6 +21,7 @@ cd claude_notifier
 
 ```bash
 cp -r ClaudeNotifier.app /Applications/
+sudo ln -sf /Applications/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier /usr/local/bin/claude-notify
 ```
 
 ## First Run
@@ -31,26 +32,14 @@ If you missed the prompt, go to: **System Settings > Notifications > ClaudeNotif
 
 ## Usage
 
-### Basic
+ClaudeNotifier reads JSON from stdin and extracts:
+
+- `message` → notification body
+- `notification_type` → notification title (formatted: `permission_prompt` → "Permission Prompt")
 
 ```bash
-open -a ClaudeNotifier --args "Title" "Message"
+echo '{"message":"Hello","notification_type":"permission_prompt"}' | claude-notify
 ```
-
-### Custom Sound
-
-```bash
-open -a ClaudeNotifier --args "Title" "Message" --sound Hero
-open -a ClaudeNotifier --args "Title" "Message" -s Funk
-```
-
-### Available Sounds
-
-**Glass** (default), Basso, Blow, Bottle, Frog, Funk, Hero, Morse, Ping, Pop, Purr, Sosumi, Submarine, Tink
-
-## Custom Icon
-
-Place `AppIcon.icns` in the project root. It will be copied to the app bundle during build.
 
 ## Claude Code Integration
 
@@ -65,12 +54,26 @@ Add to `~/.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "open -a ClaudeNotifier --args 'Claude Code' 'Awaiting your input' -s Funk"
+            "command": "claude-notify"
           }
         ]
       }
     ]
   }
+}
+```
+
+Claude Code passes JSON to the hook via stdin:
+
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+  "cwd": "/Users/...",
+  "permission_mode": "default",
+  "hook_event_name": "Notification",
+  "message": "Claude needs your permission to use Bash",
+  "notification_type": "permission_prompt"
 }
 ```
 
@@ -102,7 +105,32 @@ Go to **System Settings > Notifications**, find ClaudeNotifier and enable it.
 Re-register the app:
 
 ```bash
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f ClaudeNotifier.app
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/ClaudeNotifier.app
+```
+
+## Uninstall
+
+To completely remove ClaudeNotifier from your system:
+
+```bash
+# Remove the application
+rm -rf /Applications/ClaudeNotifier.app
+
+# Remove the symlink
+sudo rm -f /usr/local/bin/claude-notify
+
+# Remove Claude Code hook configuration
+# Edit ~/.claude/settings.json and remove the "Notification" hook entry
+
+# Remove notification settings (macOS stores these automatically)
+# Go to System Settings > Notifications and ClaudeNotifier will disappear after removal
+
+# Remove LaunchServices registration cache (optional, clears app icon cache)
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -u /Applications/ClaudeNotifier.app 2>/dev/null
+
+# Remove Swift Package Manager build cache (if you built from source)
+rm -rf ~/Library/Developer/Xcode/DerivedData/ClaudeNotifier-*
+rm -rf .build/
 ```
 
 ## License

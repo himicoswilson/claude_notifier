@@ -60,4 +60,4 @@ echo "Install:"
 echo "  cp -r $APP_DIR /Applications/"
 echo "  sudo ln -sf /Applications/$APP_DIR/Contents/MacOS/$APP_NAME /usr/local/bin/claude-notify"
 echo ""
-echo "Usage: echo '{"message":"Claude needs your permission to use Bash","notification_type":"permission_prompt"}' | claude-notify
+echo "Usage: echo '{\"message\":\"Claude needs your permission to use Bash\",\"notification_type\":\"permission_prompt\"}' | claude-notify -s Funk"

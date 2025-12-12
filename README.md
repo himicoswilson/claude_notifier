@@ -38,7 +38,23 @@ ClaudeNotifier reads JSON from stdin and extracts:
 - `notification_type` → notification title (formatted: `permission_prompt` → "Permission Prompt")
 
 ```bash
-echo '{"message":"Hello","notification_type":"permission_prompt"}' | claude-notify
+echo '{"message":"Claude needs your permission to use Bash","notification_type":"permission_prompt"}' | claude-notify
+```
+
+### Custom Sound
+
+Use `-s` or `--sound` to specify a custom notification sound:
+
+```bash
+echo '{"message":"Task completed"}' | claude-notify -s Funk
+```
+
+**Available Sounds:** Glass (default), Basso, Blow, Bottle, Frog, Funk, Hero, Morse, Ping, Pop, Purr, Sosumi, Submarine, Tink
+
+### Help
+
+```bash
+claude-notify -h
 ```
 
 ## Claude Code Integration

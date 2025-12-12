@@ -1,10 +1,59 @@
 import AppKit
 import UserNotifications
 
+func printHelp() {
+    let help = """
+        ClaudeNotifier - macOS notification agent for Claude Code hooks
+
+        USAGE:
+            echo '{"message":"...","notification_type":"..."}' | claude-notify [-s SOUND]
+            claude-notify -h | --help
+
+        OPTIONS:
+            -s, --sound SOUND   Custom sound name (default: Glass)
+            -h, --help          Show this help message
+
+        JSON FIELDS:
+            message             Notification body text
+            notification_type   Notification title (snake_case → Title Case)
+
+        AVAILABLE SOUNDS:
+            Glass (default), Basso, Blow, Bottle, Frog, Funk, Hero,
+            Morse, Ping, Pop, Purr, Sosumi, Submarine, Tink
+
+        EXAMPLES:
+            echo '{"message":"Task done"}' | claude-notify
+            echo '{"message":"Hello"}' | claude-notify -s Funk
+        """
+    print(help)
+}
+
+func checkHelpFlag() -> Bool {
+    let args = CommandLine.arguments
+    return args.contains("-h") || args.contains("--help")
+}
+
+func parseSoundArg() -> String? {
+    let args = CommandLine.arguments
+    for i in 0..<args.count {
+        if (args[i] == "-s" || args[i] == "--sound") && i + 1 < args.count {
+            return args[i + 1]
+        }
+    }
+    return nil
+}
+
+if checkHelpFlag() {
+    printHelp()
+    exit(0)
+}
+
+let customSound = parseSoundArg()
+
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     private var title = "Claude Code"
     private var message = "Awaiting your input"
-    private let soundName = "Glass"
+    private var soundName = customSound ?? "Glass"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.activate(ignoringOtherApps: true)

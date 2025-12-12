@@ -56,7 +56,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     private var soundName = customSound ?? "Glass"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.activate(ignoringOtherApps: true)
         parseStdinJSON()
 
         let center = UNUserNotificationCenter.current()
